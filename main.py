@@ -300,21 +300,30 @@ def run_web():
     asyncio.run(start_web())
 
 # ─── Main ────────────────────────────────
-def main():
+async def main():
     load_data()
-    logger.info("🤖 Bot starting in polling mode...")
+    logger.info("🤖 Bot starting in webhook mode...")
 
-    # Start keepalive web server in background
-    threading.Thread(target=run_web, daemon=True).start()
+    # Start aiohttp server
+    await start_web()
 
-    # ✅ Blocking call, manages its own loop
-    application.run_polling()
+    # Initialize and start application
+    await application.initialize()
+    await application.start()
 
-def handle_exit(signum, frame):
-    print("🛑 Shutting down...")
-    sys.exit(0)
+    # Set webhook
+    WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # e.g. https://your-app.onrender.com
+    if not WEBHOOK_URL:
+        logger.error("❌ WEBHOOK_URL not set in environment variables")
+        sys.exit(1)
 
-if __name__ == "__main__":   # ✅ fixed
+    await application.bot.set_webhook(WEBHOOK_URL + "/webhook")
+    logger.info(f"🤖 Webhook set to {WEBHOOK_URL}/webhook")
+
+    # Keep running forever
+    await asyncio.Event().wait()
+
+if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_exit)
     signal.signal(signal.SIGTERM, handle_exit)
-    main()
+    asyncio.run(main())
