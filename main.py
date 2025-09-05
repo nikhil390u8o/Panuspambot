@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
-BOT_TOKEN = "8357978062:AAFFiCH_jsnynvnhTWmoH3SSYburEekjWSI"
+BOT_TOKEN = "8357978062:AAFSgY1JFtoIjpwmh2juWvojfaMwg2rlMhM"
 OWNER_ID = os.getenv("OWNER_ID")
 PORT = "10000"
 if not BOT_TOKEN:
