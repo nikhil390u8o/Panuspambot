@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from aiohttp import web
 import signal
+import ABUSE_WORDS
 import subprocess
 import sys
 import os
