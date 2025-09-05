@@ -25,8 +25,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Configuration
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 BOT_TOKEN = "8357978062:AAFFiCH_jsnynvnhTWmoH3SSYburEekjWSI"
 OWNER_ID = os.getenv("OWNER_ID")
+PORT = "10000"
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN environment variable is missing.")
 
