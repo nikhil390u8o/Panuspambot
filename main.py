@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Configuration
-WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+WEBHOOK_URL = "https://panuspambothh.onrender.com"
 BOT_TOKEN = "8357978062:AAFSgY1JFtoIjpwmh2juWvojfaMwg2rlMhM"
 OWNER_ID = os.getenv("OWNER_ID")
 PORT = "10000"
