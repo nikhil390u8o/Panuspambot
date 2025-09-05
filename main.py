@@ -268,35 +268,45 @@ def webhook():
 # Global async loop
 async_loop = None
 
-def start_async_loop():
-    global async_loop
-    async_loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(async_loop)
-    async_loop.run_forever()
+async def handle(request):
+    return web.Response(text="✅ Bot is alive!")
+
+async def webhook_handler(request):
+    try:
+        data = await request.json()
+        update = Update.de_json(data, application.bot)
+        application.update_queue.put_nowait(update)
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+    return web.Response(text="OK")
+
+async def start_web():
+    app = web.Application()
+    app.router.add_get("/", handle)
+    app.router.add_post("/webhook", webhook_handler)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", PORT)
+    await site.start()
+    logger.info(f"🌍 Web server started on port {PORT}")
+    return runner
+
+# ─── Main ────────────────────────────────
+async def main():
+    load_data()
+    await application.bot.set_webhook(WEBHOOK_URL + "/webhook")
+    await start_web()
+
+    logger.info("🤖 Bot started with webhook mode.")
+    await application.start()
+    await application.updater.start_polling()  # just in case (fallback)
+
+def handle_exit(signum, frame):
+    print("🛑 Shutting down...")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    load_data()
-    logger.info("Bot starting...")
-
-    # Start the async loop in a separate thread
-    thread = threading.Thread(target=start_async_loop)
-    thread.start()
-
-    # Wait a bit for the loop to start
-    time.sleep(1)
-
-    # Set webhook if WEBHOOK_URL is provided
-    WEBHOOK_URL = os.environ.get('WEBHOOK_URL')
-    if WEBHOOK_URL:
-        webhook_url = WEBHOOK_URL + '/webhook'
-        set_coro = application.bot.set_webhook(webhook_url)
-        future = asyncio.run_coroutine_threadsafe(set_coro, async_loop)
-        try:
-            future.result()  # Wait for set_webhook to complete
-            logger.info(f"Webhook set to {webhook_url}")
-        except Exception as e:
-            logger.error(f"Failed to set webhook: {e}")
-
-    print("✅ Bot running...")
-    port = int(os.environ.get('PORT', 5000))
-    flask_app.run(host='0.0.0.0', port=port)
+    signal.signal(signal.SIGINT, handle_exit)
+    signal.signal(signal.SIGTERM, handle_exit)
+    asyncio.run(main())
