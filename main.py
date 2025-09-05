@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Configuration
-BOT_TOKEN = "8357978062:AAHMVJwseysfpkbrGfQT4HJxDurp8r7ub0s"
+BOT_TOKEN = "8357978062:AAFFiCH_jsnynvnhTWmoH3SSYburEekjWSI"
 OWNER_ID = os.getenv("OWNER_ID")
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN environment variable is missing.")
