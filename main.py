@@ -294,21 +294,25 @@ async def start_web():
     logger.info(f"🌍 Web server started on port {PORT}")
     return runner
 
-# ─── Main ────────────────────────────────
-async def main():
-    load_data()
-    await application.bot.set_webhook(WEBHOOK_URL + "/webhook")
-    await start_web()
+def run_web():
+    asyncio.run(start_web())
 
-    logger.info("🤖 Bot started with webhook mode.")
-    await application.start()
-    await application.updater.start_polling()  # just in case (fallback)
+# ─── Main ────────────────────────────────
+def main():
+    load_data()
+    logger.info("🤖 Bot starting in polling mode...")
+
+    # Start keepalive web server in background
+    threading.Thread(target=run_web, daemon=True).start()
+
+    # ✅ Blocking call, manages its own loop
+    application.run_polling()
 
 def handle_exit(signum, frame):
     print("🛑 Shutting down...")
     sys.exit(0)
 
-if __name__ == "__main__":
+if __name__ == "__main__":   # ✅ fixed
     signal.signal(signal.SIGINT, handle_exit)
     signal.signal(signal.SIGTERM, handle_exit)
-    asyncio.run(main())
+    main()
